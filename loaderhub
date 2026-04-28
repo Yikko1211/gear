@@ -263,14 +263,14 @@ task.wait(0.18)
 TweenService:Create(bar, TweenInfo.new(0.3), {BackgroundColor3 = CYAN}):Play()
 task.wait(0.5)
 
--- ══════════════════════════════
+-- ═════════════════════════════=
 --  DESPEGUE
 --  1. Esconder todo el texto del frame inmediatamente
 --  2. Sacar el cohete al gui
 --  3. Moverlo al centro X de pantalla (misma Y)
 --  4. Rotar -90 para apuntar arriba
 --  5. Subir hasta salir de pantalla
--- ══════════════════════════════
+-- ═════════════════════════════=
 
 -- Esconder todo antes del shrink (texto, barra y estrellas)
 title.Visible = false
@@ -361,6 +361,14 @@ main.BackgroundColor3 = Color3.fromRGB(0,0,0)
 main.Parent = gui
 Instance.new("UICorner", main).CornerRadius = UDim.new(0,10)
 
+-- Star background container (covers entire main)
+local starBg = Instance.new("Frame")
+starBg.Size = UDim2.new(1,0,1,0)
+starBg.Position = UDim2.new(0,0,0,0)
+starBg.BackgroundTransparency = 1
+starBg.ZIndex = 0
+starBg.Parent = main
+
 -- ⭐ ESTRELLAS
 local stars = {}
 
@@ -373,7 +381,7 @@ for i = 1, 60 do
     s.BackgroundColor3 = WHITE
     s.BackgroundTransparency = 0.7
     s.BorderSizePixel = 0
-    s.Parent = main
+    s.Parent = starBg
     Instance.new("UICorner", s).CornerRadius = UDim.new(1,0)
 
     table.insert(stars, s)
@@ -394,8 +402,10 @@ end
 local header = Instance.new("Frame")
 header.Size = UDim2.new(1,0,0,35)
 header.BackgroundColor3 = Color3.fromRGB(20,20,30)
+header.BackgroundTransparency = 0.15
 header.Parent = main
 Instance.new("UICorner", header).CornerRadius = UDim.new(0,10)
+header.ZIndex = 2
 
 -- DRAG
 local dragging, dragInput, dragStart, startPos
@@ -438,8 +448,10 @@ local sidebar = Instance.new("Frame")
 sidebar.Size = UDim2.new(0,180,1,-35)
 sidebar.Position = UDim2.new(0,0,0,35)
 sidebar.BackgroundColor3 = Color3.fromRGB(10,12,30)
+sidebar.BackgroundTransparency = 0.15
 sidebar.Parent = main
 Instance.new("UICorner", sidebar).CornerRadius = UDim.new(0,10)
+sidebar.ZIndex = 2
 
 -- CONTENT
 local content = Instance.new("Frame")
@@ -449,33 +461,61 @@ content.BackgroundColor3 = Color3.fromRGB(12,12,20)
 content.BackgroundTransparency = 1
 content.Parent = main
 Instance.new("UICorner", content).CornerRadius = UDim.new(0,10)
+content.ZIndex = 2
+
+-- PAGES (tabs)
+local pages = {}
+local function createPage(name)
+    local page = Instance.new("Frame")
+    page.Size = UDim2.new(1,0,1,0)
+    page.Position = UDim2.new(0,0,0,0)
+    page.BackgroundTransparency = 1
+    page.Visible = false
+    page.Parent = content
+    pages[name] = page
+    return page
+end
+
+local function showPage(name)
+    for k,v in pairs(pages) do
+        v.Visible = (k == name)
+    end
+end
 
 -- CATEGORY
 local function createCategory(name, y)
+    local page = createPage(name)
+
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(1,-20,0,40)
     btn.Position = UDim2.new(0,10,0,y)
     btn.Text = name
-    btn.BackgroundColor3 = Color3.fromRGB(20,20,35)
     btn.BackgroundColor3 = Color3.fromRGB(10,20,40)
     btn.TextColor3 = WHITE
     btn.Font = Enum.Font.GothamBold
     btn.TextSize = 14
     btn.Parent = sidebar
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0,8)
+
+    btn.MouseButton1Click:Connect(function()
+        showPage(name)
+    end)
+
+    return page
 end
 
-createCategory("Base", 20)
-createCategory("Stealing", 70)
-createCategory("Player", 120)
+local basePage = createCategory("Base", 20)
+local stealingPage = createCategory("Stealing", 70)
+local playerPage = createCategory("Player", 120)
+local settingsPage = createCategory("Settings", 260)
 
 -- TOGGLE
-local function createToggle(text, y, callback)
+local function createToggle(parent, text, y, callback)
     local holder = Instance.new("Frame")
     holder.Size = UDim2.new(1,-20,0,40)
     holder.Position = UDim2.new(0,10,0,y)
     holder.BackgroundTransparency = 1
-    holder.Parent = content
+    holder.Parent = parent or content
 
     local label = Instance.new("TextLabel")
     label.Size = UDim2.new(0.7,0,1,0)
@@ -518,56 +558,30 @@ local function runScript(url)
     end)
 end
 
--- ===== TABS =====
-
-local playerPage = createCategory("Player", 20)
-local worldPage  = createCategory("World", 70)
-local settingsPage = createCategory("Settings", 120)
-
-switchPage("Player")
+-- show default page
+showPage("Player")
 
 -- 🧍 PLAYER
 local char = player.Character or player.CharacterAdded:Wait()
 
-createToggle("Speed", 10, function(state)
+createToggle(playerPage, "Speed", 10, function(state)
     char.Humanoid.WalkSpeed = state and 50 or 16
 end)
 
-createToggle("Jump Height", 60, function(state)
+createToggle(playerPage, "Jump Height", 60, function(state)
     char.Humanoid.JumpPower = state and 100 or 50
 end)
 
-createToggle("Full Bright", 110, function(state)
+createToggle(playerPage, "Full Bright", 110, function(state)
     game.Lighting.Brightness = state and 5 or 2
 end)
 
--- SETTINGS ICON
-local gear = Instance.new("ImageButton")
-gear.Size = UDim2.new(0,30,0,30)
-gear.Position = UDim2.new(1,-40,0,5)
-gear.BackgroundTransparency = 1
-gear.Image = "rbxassetid://6031280882"
-gear.Parent = main
-
--- SETTINGS FRAME
-local settingsFrame = Instance.new("Frame")
-settingsFrame.Size = UDim2.new(0,200,0,150)
-settingsFrame.Position = UDim2.new(1,-210,0,40)
-settingsFrame.BackgroundColor3 = Color3.fromRGB(20,20,30)
-settingsFrame.Visible = false
-settingsFrame.Parent = main
-Instance.new("UICorner", settingsFrame).CornerRadius = UDim.new(0,10)
-
-gear.MouseButton1Click:Connect(function()
-    settingsFrame.Visible = not settingsFrame.Visible
-end)
-
--- CAMBIAR COLOR ESTRELLAS
+-- SETTINGS (moved into settings page)
 local colorBtn = Instance.new("TextButton")
 colorBtn.Size = UDim2.new(1,-20,0,40)
 colorBtn.Position = UDim2.new(0,10,0,10)
 colorBtn.Text = "Blue Stars"
-colorBtn.Parent = settingsFrame
+colorBtn.Parent = settingsPage
 
 colorBtn.MouseButton1Click:Connect(function()
     for _, s in ipairs(stars) do
@@ -575,23 +589,13 @@ colorBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- KEYBIND
 local toggleKey = Enum.KeyCode.RightControl
-
-createToggle(settingsPage, "Toggle Keybind", 10, function()
-end)
-
-UserInputService.InputBegan:Connect(function(input, gpe)
-    if not gpe and input.KeyCode == toggleKey then
-        main.Visible = not main.Visible
-    end
-end)
 
 local keyBtn = Instance.new("TextButton")
 keyBtn.Size = UDim2.new(1,-20,0,40)
 keyBtn.Position = UDim2.new(0,10,0,60)
 keyBtn.Text = "Change Keybind"
-keyBtn.Parent = settingsFrame
+keyBtn.Parent = settingsPage
 
 local waiting = false
 
@@ -605,5 +609,7 @@ UserInputService.InputBegan:Connect(function(input, gpe)
         toggleKey = input.KeyCode
         keyBtn.Text = "Key: "..input.KeyCode.Name
         waiting = false
+    elseif not gpe and input.KeyCode == toggleKey then
+        main.Visible = not main.Visible
     end
 end)
