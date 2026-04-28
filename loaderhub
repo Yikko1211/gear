@@ -400,12 +400,38 @@ end
 
 -- HEADER
 local header = Instance.new("Frame")
-header.Size = UDim2.new(1,0,0,35)
-header.BackgroundColor3 = Color3.fromRGB(20,20,30)
-header.BackgroundTransparency = 0.15
+header.Size = UDim2.new(1,0,0,50)
+header.BackgroundColor3 = Color3.fromRGB(0,0,0)
+header.BackgroundTransparency = 0
 header.Parent = main
 Instance.new("UICorner", header).CornerRadius = UDim.new(0,10)
-header.ZIndex = 2
+header.ZIndex = 3
+
+local headerGrad = Instance.new("UIGradient")
+headerGrad.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(10,10,10)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(20,20,20)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(10,10,10)),
+})
+headerGrad.Transparency = NumberSequence.new({
+    NumberSequenceKeypoint.new(0, 0.25),
+    NumberSequenceKeypoint.new(0.5, 0.0),
+    NumberSequenceKeypoint.new(1, 0.25),
+})
+headerGrad.Parent = header
+
+local headerTitle = Instance.new("TextLabel")
+headerTitle.Size = UDim2.new(1, -20, 1, 0)
+headerTitle.Position = UDim2.new(0, 10, 0, 0)
+headerTitle.BackgroundTransparency = 1
+headerTitle.Text = "ASTRO HUB"
+headerTitle.TextColor3 = WHITE
+headerTitle.Font = Enum.Font.GothamBlack
+headerTitle.TextScaled = true
+headerTitle.TextXAlignment = Enum.TextXAlignment.Left
+headerTitle.TextSize = 24
+headerTitle.Parent = header
+headerTitle.ZIndex = 4
 
 -- DRAG
 local dragging, dragInput, dragStart, startPos
@@ -445,18 +471,26 @@ end)
 
 -- SIDEBAR
 local sidebar = Instance.new("Frame")
-sidebar.Size = UDim2.new(0,180,1,-35)
-sidebar.Position = UDim2.new(0,0,0,35)
-sidebar.BackgroundColor3 = Color3.fromRGB(10,12,30)
-sidebar.BackgroundTransparency = 0.15
+sidebar.Size = UDim2.new(0,180,1,-50)
+sidebar.Position = UDim2.new(0,0,0,50)
+sidebar.BackgroundColor3 = Color3.fromRGB(8,8,8)
+sidebar.BackgroundTransparency = 0
 sidebar.Parent = main
 Instance.new("UICorner", sidebar).CornerRadius = UDim.new(0,10)
-sidebar.ZIndex = 2
+sidebar.ZIndex = 3
+
+local sideGrad = Instance.new("UIGradient")
+sideGrad.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(6,6,6)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(12,12,12)),
+})
+sideGrad.Transparency = NumberSequence.new(0.2)
+sideGrad.Parent = sidebar
 
 -- CONTENT
 local content = Instance.new("Frame")
-content.Size = UDim2.new(1,-190,1,-45)
-content.Position = UDim2.new(0,185,0,40)
+content.Size = UDim2.new(1,-190,1,-60)
+content.Position = UDim2.new(0,185,0,50)
 content.BackgroundColor3 = Color3.fromRGB(12,12,20)
 content.BackgroundTransparency = 1
 content.Parent = main
@@ -490,7 +524,7 @@ local function createCategory(name, y)
     btn.Size = UDim2.new(1,-20,0,40)
     btn.Position = UDim2.new(0,10,0,y)
     btn.Text = name
-    btn.BackgroundColor3 = Color3.fromRGB(10,20,40)
+    btn.BackgroundColor3 = Color3.fromRGB(8,8,8)
     btn.TextColor3 = WHITE
     btn.Font = Enum.Font.GothamBold
     btn.TextSize = 14
@@ -530,7 +564,7 @@ local function createToggle(parent, text, y, callback)
     local toggle = Instance.new("TextButton")
     toggle.Size = UDim2.new(0,40,0,20)
     toggle.Position = UDim2.new(1,-50,0.5,-10)
-    toggle.BackgroundColor3 = Color3.fromRGB(10,20,40)
+    toggle.BackgroundColor3 = Color3.fromRGB(8,8,8)
     toggle.Text = ""
     toggle.Parent = holder
     Instance.new("UICorner", toggle).CornerRadius = UDim.new(1,0)
