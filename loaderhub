@@ -335,12 +335,29 @@ local player = game.Players.LocalPlayer
 
 local NEON = Color3.fromRGB(0,200,255)
 
--- HUB PRINCIPAL
+-- LOAD MODULE SYSTEM
+local BASE_URL = "https://raw.githubusercontent.com/Yikko1211/gear/main/scripts/"
+
+local function loadModule(path)
+    local success, result = pcall(function()
+        return game:HttpGet(BASE_URL .. path)
+    end)
+
+    if success and result then
+        return loadstring(result)()
+    else
+        warn("Error loading:", path)
+    end
+end
+
+-- CARGAR WORLD
+local World = loadModule("world/world.lua")
+
+-- HUB
 local main = Instance.new("Frame")
 main.Size = UDim2.new(0,600,0,350)
 main.Position = UDim2.new(0.5,-300,0.5,-175)
 main.BackgroundColor3 = Color3.fromRGB(8,8,18)
-main.BorderSizePixel = 0
 main.Parent = gui
 Instance.new("UICorner", main).CornerRadius = UDim.new(0,10)
 
@@ -348,40 +365,32 @@ Instance.new("UICorner", main).CornerRadius = UDim.new(0,10)
 local stars = {}
 
 for i = 1, 60 do
-    local star = Instance.new("Frame")
+    local s = Instance.new("Frame")
     local size = math.random(1,2)
 
-    star.Size = UDim2.new(0,size,0,size)
-    star.Position = UDim2.new(math.random(),0,math.random(),0)
-    star.BackgroundColor3 = NEON
-    star.BackgroundTransparency = 0.7
-    star.BorderSizePixel = 0
-    star.ZIndex = 0
-    star.Parent = main
-    Instance.new("UICorner", star).CornerRadius = UDim.new(1,0)
+    s.Size = UDim2.new(0,size,0,size)
+    s.Position = UDim2.new(math.random(),0,math.random(),0)
+    s.BackgroundColor3 = NEON
+    s.BackgroundTransparency = 0.7
+    s.BorderSizePixel = 0
+    s.Parent = main
+    Instance.new("UICorner", s).CornerRadius = UDim.new(1,0)
 
-    table.insert(stars, star)
+    table.insert(stars, s)
 
     task.spawn(function()
-        while star.Parent do
-            local speed = math.random(6,15)/10
+        while s.Parent do
+            local sp = math.random(6,15)/10
 
-            TweenService:Create(star, TweenInfo.new(speed, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-                BackgroundTransparency = 0.1
-            }):Play()
-
-            task.wait(speed)
-
-            TweenService:Create(star, TweenInfo.new(speed, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-                BackgroundTransparency = 0.85
-            }):Play()
-
-            task.wait(speed)
+            TweenService:Create(s, TweenInfo.new(sp), {BackgroundTransparency = 0.1}):Play()
+            task.wait(sp)
+            TweenService:Create(s, TweenInfo.new(sp), {BackgroundTransparency = 0.85}):Play()
+            task.wait(sp)
         end
     end)
 end
 
--- HEADER (para drag)
+-- HEADER
 local header = Instance.new("Frame")
 header.Size = UDim2.new(1,0,0,35)
 header.BackgroundColor3 = Color3.fromRGB(20,20,30)
@@ -432,15 +441,28 @@ sidebar.BackgroundColor3 = Color3.fromRGB(15,15,25)
 sidebar.Parent = main
 Instance.new("UICorner", sidebar).CornerRadius = UDim.new(0,10)
 
--- CONTENT
-local content = Instance.new("Frame")
-content.Size = UDim2.new(1,-190,1,-45)
-content.Position = UDim2.new(0,185,0,40)
-content.BackgroundColor3 = Color3.fromRGB(12,12,20)
-content.Parent = main
-Instance.new("UICorner", content).CornerRadius = UDim.new(0,10)
+-- CONTENT HOLDER (tabs)
+local pages = {}
 
--- CATEGORY
+local function createPage(name)
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(1,-190,1,-45)
+    frame.Position = UDim2.new(0,185,0,40)
+    frame.BackgroundTransparency = 1
+    frame.Visible = false
+    frame.Parent = main
+
+    pages[name] = frame
+    return frame
+end
+
+local function switchPage(name)
+    for n, p in pairs(pages) do
+        p.Visible = (n == name)
+    end
+end
+
+-- CATEGORY BUTTON
 local function createCategory(name, y)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(1,-20,0,40)
@@ -452,19 +474,23 @@ local function createCategory(name, y)
     btn.TextSize = 14
     btn.Parent = sidebar
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0,8)
+
+    local page = createPage(name)
+
+    btn.MouseButton1Click:Connect(function()
+        switchPage(name)
+    end)
+
+    return page
 end
 
-createCategory("Base", 20)
-createCategory("Stealing", 70)
-createCategory("Player", 120)
-
--- TOGGLE
-local function createToggle(text, y, callback)
+-- TOGGLE GENERICO (sirve para loadstrings también)
+local function createToggle(parent, text, y, callback)
     local holder = Instance.new("Frame")
     holder.Size = UDim2.new(1,-20,0,40)
     holder.Position = UDim2.new(0,10,0,y)
     holder.BackgroundTransparency = 1
-    holder.Parent = content
+    holder.Parent = parent
 
     local label = Instance.new("TextLabel")
     label.Size = UDim2.new(0.7,0,1,0)
@@ -498,57 +524,57 @@ local function createToggle(text, y, callback)
     end)
 end
 
--- PLAYER SCRIPTS
+-- 🔌 LOADSTRING HELPER
+local function runScript(url)
+    pcall(function()
+        loadstring(game:HttpGet(url))()
+    end)
+end
+
+-- ===== TABS =====
+
+local playerPage = createCategory("Player", 20)
+local worldPage  = createCategory("World", 70)
+local settingsPage = createCategory("Settings", 120)
+
+switchPage("Player")
+
+-- 🧍 PLAYER
 local char = player.Character or player.CharacterAdded:Wait()
 
-createToggle("Speed", 10, function(state)
-    char.Humanoid.WalkSpeed = state and 50 or 16
+createToggle(playerPage, "Speed", 10, function(s)
+    char.Humanoid.WalkSpeed = s and 50 or 16
 end)
 
-createToggle("Jump Height", 60, function(state)
-    char.Humanoid.JumpPower = state and 100 or 50
+createToggle(playerPage, "Jump", 60, function(s)
+    char.Humanoid.JumpPower = s and 100 or 50
 end)
 
-createToggle("Full Bright", 110, function(state)
-    game.Lighting.Brightness = state and 5 or 2
+-- 🌍 WORLD (usa world.lua)
+createToggle(worldPage, "Full Bright", 10, function(s)
+    if World then World.ToggleFullBright(s) end
 end)
 
--- SETTINGS ICON
-local gear = Instance.new("ImageButton")
-gear.Size = UDim2.new(0,30,0,30)
-gear.Position = UDim2.new(1,-40,0,5)
-gear.BackgroundTransparency = 1
-gear.Image = "rbxassetid://6031280882"
-gear.Parent = main
-
--- SETTINGS FRAME
-local settingsFrame = Instance.new("Frame")
-settingsFrame.Size = UDim2.new(0,200,0,150)
-settingsFrame.Position = UDim2.new(1,-210,0,40)
-settingsFrame.BackgroundColor3 = Color3.fromRGB(20,20,30)
-settingsFrame.Visible = false
-settingsFrame.Parent = main
-Instance.new("UICorner", settingsFrame).CornerRadius = UDim.new(0,10)
-
-gear.MouseButton1Click:Connect(function()
-    settingsFrame.Visible = not settingsFrame.Visible
+createToggle(worldPage, "No Fog", 60, function(s)
+    if World then World.ToggleFog(s) end
 end)
 
--- CAMBIAR COLOR ESTRELLAS
-local colorBtn = Instance.new("TextButton")
-colorBtn.Size = UDim2.new(1,-20,0,40)
-colorBtn.Position = UDim2.new(0,10,0,10)
-colorBtn.Text = "Blue Stars"
-colorBtn.Parent = settingsFrame
+createToggle(worldPage, "Free Cam", 110, function(s)
+    if World then World.ToggleFreeCam(s) end
+end)
 
-colorBtn.MouseButton1Click:Connect(function()
-    for _, s in ipairs(stars) do
-        s.BackgroundColor3 = NEON
+-- 🔌 EJEMPLO LOADSTRING (puedes duplicar esto)
+createToggle(worldPage, "Extra Script", 160, function(s)
+    if s then
+        runScript("https://raw.githubusercontent.com/Yikko1211/gear/main/scripts/world/world.lua")
     end
 end)
 
--- KEYBIND
+-- ⚙️ SETTINGS
 local toggleKey = Enum.KeyCode.RightControl
+
+createToggle(settingsPage, "Toggle Keybind", 10, function()
+end)
 
 UserInputService.InputBegan:Connect(function(input, gpe)
     if not gpe and input.KeyCode == toggleKey then
@@ -556,23 +582,9 @@ UserInputService.InputBegan:Connect(function(input, gpe)
     end
 end)
 
-local keyBtn = Instance.new("TextButton")
-keyBtn.Size = UDim2.new(1,-20,0,40)
-keyBtn.Position = UDim2.new(0,10,0,60)
-keyBtn.Text = "Change Keybind"
-keyBtn.Parent = settingsFrame
-
-local waiting = false
-
-keyBtn.MouseButton1Click:Connect(function()
-    keyBtn.Text = "Press key..."
-    waiting = true
-end)
-
-UserInputService.InputBegan:Connect(function(input, gpe)
-    if waiting and not gpe then
-        toggleKey = input.KeyCode
-        keyBtn.Text = "Key: "..input.KeyCode.Name
-        waiting = false
+-- 🎨 CAMBIAR COLOR ESTRELLAS
+createToggle(settingsPage, "Blue Stars", 60, function()
+    for _, s in ipairs(stars) do
+        s.BackgroundColor3 = NEON
     end
 end)
