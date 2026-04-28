@@ -1,15 +1,27 @@
--- WORLD MODULE
+-- ╔════════════════════════════╗
+--        WORLD MODULE
+-- ╚════════════════════════════╝
 
 local World = {}
 
--- 🌙 Full Bright PRO
-function World.FullBright(state)
-    local Lighting = game:GetService("Lighting")
+local Lighting = game:GetService("Lighting")
+local Camera = workspace.CurrentCamera
+
+-- Estado interno
+World.State = {
+    FullBright = false,
+    NoFog = false,
+    FreeCam = false,
+    FOV = 70
+}
+
+-- 🌙 FULL BRIGHT
+function World.ToggleFullBright(state)
+    World.State.FullBright = state
 
     if state then
         Lighting.Brightness = 5
         Lighting.ClockTime = 14
-        Lighting.FogEnd = 100000
         Lighting.GlobalShadows = false
         Lighting.OutdoorAmbient = Color3.fromRGB(128,128,128)
     else
@@ -18,29 +30,33 @@ function World.FullBright(state)
     end
 end
 
--- 🎨 Ambient Color
-function World.Ambient(color)
-    game.Lighting.Ambient = color
+-- 🌫️ NO FOG
+function World.ToggleFog(state)
+    World.State.NoFog = state
+    Lighting.FogEnd = state and 100000 or 1000
 end
 
--- 🌫️ Remove Fog
-function World.NoFog(state)
-    game.Lighting.FogEnd = state and 100000 or 1000
+-- 🎥 FREECAM
+function World.ToggleFreeCam(state)
+    World.State.FreeCam = state
+
+    if state then
+        Camera.CameraType = Enum.CameraType.Scriptable
+    else
+        Camera.CameraType = Enum.CameraType.Custom
+    end
 end
 
 -- 📷 FOV
 function World.SetFOV(value)
-    workspace.CurrentCamera.FieldOfView = value
+    value = math.clamp(value, 70, 120)
+    World.State.FOV = value
+    Camera.FieldOfView = value
 end
 
--- 🎥 FreeCam (simple)
-function World.FreeCam(state)
-    if state then
-        local cam = workspace.CurrentCamera
-        cam.CameraType = Enum.CameraType.Scriptable
-    else
-        workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
-    end
+-- 🎨 COLOR AMBIENTE
+function World.SetAmbient(color)
+    Lighting.Ambient = color
 end
 
 return World
