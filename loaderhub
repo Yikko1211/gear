@@ -1,0 +1,578 @@
+-- ╔══════════════════════════════════════════╗
+-- ║         ASTRO HUB - LOADING GUI v5       ║
+-- ╚══════════════════════════════════════════╝
+
+local TweenService = game:GetService("TweenService")
+local Players      = game:GetService("Players")
+
+local player = Players.LocalPlayer
+
+local CYAN  = Color3.fromRGB(0, 200, 255)
+local WHITE = Color3.new(1, 1, 1)
+
+-- GUI
+local gui = Instance.new("ScreenGui")
+gui.Name           = "AstroHubLoader"
+gui.IgnoreGuiInset = true
+gui.ResetOnSpawn   = false
+gui.Parent         = player:WaitForChild("PlayerGui")
+
+-- FRAME CENTRAL
+local frame = Instance.new("Frame")
+frame.Size             = UDim2.new(0, 300, 0, 150)
+frame.Position         = UDim2.new(0.5, -150, 0.5, -75)
+frame.BackgroundColor3 = Color3.fromRGB(8, 8, 18)
+frame.ClipsDescendants = true
+frame.BorderSizePixel  = 0
+frame.Parent           = gui
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 14)
+
+-- Contorno negro (sin color, solo para el flash al 100%)
+local stroke = Instance.new("UIStroke")
+stroke.Thickness       = 0
+stroke.Color           = Color3.new(0, 0, 0)
+stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+stroke.Parent          = frame
+
+-- ESTRELLAS — posición fija, parpadean suave
+local starPositions = {
+    {0.05, 0.10}, {0.12, 0.45}, {0.20, 0.80}, {0.28, 0.20},
+    {0.35, 0.65}, {0.42, 0.35}, {0.50, 0.90}, {0.58, 0.15},
+    {0.65, 0.55}, {0.72, 0.30}, {0.80, 0.75}, {0.88, 0.50},
+    {0.94, 0.85}, {0.08, 0.70}, {0.17, 0.05}, {0.33, 0.95},
+    {0.47, 0.60}, {0.62, 0.08}, {0.75, 0.40}, {0.91, 0.25},
+    {0.23, 0.52}, {0.55, 0.78},
+}
+
+for _, pos in ipairs(starPositions) do
+    local sz = math.random(1, 3)
+    local s  = Instance.new("Frame")
+    s.Size                   = UDim2.new(0, sz, 0, sz)
+    s.Position               = UDim2.new(pos[1], 0, pos[2], 0)
+    s.BackgroundColor3       = WHITE
+    s.BackgroundTransparency = 0.5
+    s.BorderSizePixel        = 0
+    s.Parent                 = frame
+    Instance.new("UICorner", s).CornerRadius = UDim.new(1, 0)
+
+    local speed = 0.8 + math.random() * 1.5
+    task.spawn(function()
+        task.wait(math.random() * 2)
+        while s.Parent do
+            TweenService:Create(s, TweenInfo.new(speed, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+                BackgroundTransparency = 0.0
+            }):Play()
+            task.wait(speed)
+            TweenService:Create(s, TweenInfo.new(speed, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+                BackgroundTransparency = 0.85
+            }):Play()
+            task.wait(speed)
+        end
+    end)
+end
+
+-- TÍTULO — solo blanco
+local title = Instance.new("TextLabel")
+title.Size                   = UDim2.new(1, 0, 0, 40)
+title.Position               = UDim2.new(0, 0, 0, 20)
+title.Text                   = "ASTRO HUB"
+title.TextColor3             = WHITE
+title.BackgroundTransparency = 1
+title.TextScaled             = true
+title.Font                   = Enum.Font.GothamBlack
+title.Parent                 = frame
+
+-- Porcentaje (sin subtítulo)
+local pct = Instance.new("TextLabel")
+pct.Size                   = UDim2.new(0, 42, 0, 18)
+pct.Position               = UDim2.new(0.5, -21, 0, 65)
+pct.Text                   = "0%"
+pct.TextColor3             = CYAN
+pct.BackgroundTransparency = 1
+pct.TextScaled             = true
+pct.Font                   = Enum.Font.GothamBold
+pct.Parent                 = frame
+
+-- BARRA
+local BAR_Y     = 108
+local BAR_LEFT  = 0.11
+local BAR_WIDTH = 0.78
+
+local barBg = Instance.new("Frame")
+barBg.Size             = UDim2.new(BAR_WIDTH, 0, 0, 10)
+barBg.Position         = UDim2.new(BAR_LEFT, 0, 0, BAR_Y)
+barBg.BackgroundColor3 = Color3.fromRGB(20, 20, 35)
+barBg.BorderSizePixel  = 0
+barBg.Parent           = frame
+Instance.new("UICorner", barBg).CornerRadius = UDim.new(1, 0)
+
+local bar = Instance.new("Frame")
+bar.Size             = UDim2.new(0, 0, 1, 0)
+bar.BackgroundColor3 = CYAN
+bar.BorderSizePixel  = 0
+bar.Parent           = barBg
+Instance.new("UICorner", bar).CornerRadius = UDim.new(1, 0)
+local bg2 = Instance.new("UIGradient")
+bg2.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0,   Color3.fromRGB(0, 100, 220)),
+    ColorSequenceKeypoint.new(0.7, CYAN),
+    ColorSequenceKeypoint.new(1,   WHITE),
+})
+bg2.Parent = bar
+
+local shine = Instance.new("Frame")
+shine.Size                   = UDim2.new(1, 0, 0.45, 0)
+shine.BackgroundColor3       = WHITE
+shine.BackgroundTransparency = 0.75
+shine.BorderSizePixel        = 0
+shine.Parent                 = bar
+Instance.new("UICorner", shine).CornerRadius = UDim.new(1, 0)
+
+-- COHETE (Frames)
+local rocketFrame = Instance.new("Frame")
+rocketFrame.Size                   = UDim2.new(0, 20, 0, 14)
+rocketFrame.AnchorPoint            = Vector2.new(1, 0.5)
+rocketFrame.BackgroundTransparency = 1
+rocketFrame.BorderSizePixel        = 0
+rocketFrame.ZIndex                 = 5
+rocketFrame.Visible                = false
+rocketFrame.Parent                 = frame
+
+local body = Instance.new("Frame")
+body.Size             = UDim2.new(0, 12, 0, 8)
+body.Position         = UDim2.new(0, 3, 0.5, -4)
+body.BackgroundColor3 = Color3.fromRGB(220, 230, 255)
+body.BorderSizePixel  = 0
+body.ZIndex           = 5
+body.Parent           = rocketFrame
+Instance.new("UICorner", body).CornerRadius = UDim.new(0, 2)
+
+local stripe = Instance.new("Frame")
+stripe.Size             = UDim2.new(0, 4, 1, 0)
+stripe.Position         = UDim2.new(0, 4, 0, 0)
+stripe.BackgroundColor3 = CYAN
+stripe.BorderSizePixel  = 0
+stripe.ZIndex           = 6
+stripe.Parent           = body
+
+local window = Instance.new("Frame")
+window.Size             = UDim2.new(0, 4, 0, 4)
+window.Position         = UDim2.new(0, 5, 0.5, -2)
+window.BackgroundColor3 = Color3.fromRGB(150, 230, 255)
+window.BorderSizePixel  = 0
+window.ZIndex           = 7
+window.Parent           = body
+Instance.new("UICorner", window).CornerRadius = UDim.new(1, 0)
+
+local nose = Instance.new("Frame")
+nose.Size             = UDim2.new(0, 8, 0, 8)
+nose.AnchorPoint      = Vector2.new(0, 0.5)
+nose.Position         = UDim2.new(0, 13, 0.5, 0)
+nose.Rotation         = 45
+nose.BackgroundColor3 = Color3.fromRGB(200, 215, 255)
+nose.BorderSizePixel  = 0
+nose.ZIndex           = 4
+nose.Parent           = rocketFrame
+
+local finTop = Instance.new("Frame")
+finTop.Size             = UDim2.new(0, 6, 0, 5)
+finTop.Position         = UDim2.new(0, 3, 0, -3)
+finTop.Rotation         = -20
+finTop.BackgroundColor3 = CYAN
+finTop.BorderSizePixel  = 0
+finTop.ZIndex           = 4
+finTop.Parent           = rocketFrame
+Instance.new("UICorner", finTop).CornerRadius = UDim.new(0, 1)
+
+local finBot = Instance.new("Frame")
+finBot.Size             = UDim2.new(0, 6, 0, 5)
+finBot.Position         = UDim2.new(0, 3, 1, -2)
+finBot.Rotation         = 20
+finBot.BackgroundColor3 = CYAN
+finBot.BorderSizePixel  = 0
+finBot.ZIndex           = 4
+finBot.Parent           = rocketFrame
+Instance.new("UICorner", finBot).CornerRadius = UDim.new(0, 1)
+
+-- FUEGO
+local fire = Instance.new("Frame")
+fire.Size             = UDim2.new(0, 10, 0, 8)
+fire.AnchorPoint      = Vector2.new(1, 0.5)
+fire.Position         = UDim2.new(0, 3, 0.5, 0)
+fire.BackgroundColor3 = Color3.fromRGB(255, 140, 0)
+fire.BorderSizePixel  = 0
+fire.ZIndex           = 3
+fire.Visible          = false
+fire.Parent           = rocketFrame
+Instance.new("UICorner", fire).CornerRadius = UDim.new(0, 3)
+
+local fireCore = Instance.new("Frame")
+fireCore.Size             = UDim2.new(0.5, 0, 0.5, 0)
+fireCore.AnchorPoint      = Vector2.new(1, 0.5)
+fireCore.Position         = UDim2.new(1, 0, 0.5, 0)
+fireCore.BackgroundColor3 = Color3.fromRGB(255, 240, 100)
+fireCore.BorderSizePixel  = 0
+fireCore.ZIndex           = 4
+fireCore.Parent           = fire
+Instance.new("UICorner", fireCore).CornerRadius = UDim.new(1, 0)
+
+task.spawn(function()
+    while fire.Parent do
+        local w = math.random(8, 14)
+        local h = math.random(5, 9)
+        fire.Size             = UDim2.new(0, w, 0, h)
+        fire.BackgroundColor3 = Color3.fromRGB(255, math.random(100, 200), 0)
+        fireCore.Size         = UDim2.new(0, w * 0.4, 0, h * 0.5)
+        task.wait(0.05)
+    end
+end)
+
+-- SONIDO
+local sound = Instance.new("Sound")
+sound.SoundId = "rbxassetid://3123526292"
+sound.Volume  = 1.5
+sound.Parent  = gui
+
+-- FUNCIÓN PROGRESO
+local function setProgress(p)
+    pct.Text = p .. "%"
+    TweenService:Create(bar, TweenInfo.new(0.45, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        Size = UDim2.new(p / 100, 0, 1, 0)
+    }):Play()
+    local targetX = BAR_LEFT + BAR_WIDTH * (p / 100)
+    TweenService:Create(rocketFrame, TweenInfo.new(0.45, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        Position = UDim2.new(targetX, 0, 0, BAR_Y + 5)
+    }):Play()
+end
+
+-- SECUENCIA
+task.wait(0.5)
+rocketFrame.Visible = true
+fire.Visible        = true
+
+setProgress(20)  ; task.wait(0.9)
+setProgress(45)  ; task.wait(1.1)
+setProgress(70)  ; task.wait(0.9)
+setProgress(90)  ; task.wait(0.8)
+setProgress(99)  ; task.wait(0.7)
+
+setProgress(100)
+pct.Text = "100%"
+TweenService:Create(bar, TweenInfo.new(0.12), {BackgroundColor3 = WHITE}):Play()
+task.wait(0.18)
+TweenService:Create(bar, TweenInfo.new(0.3), {BackgroundColor3 = CYAN}):Play()
+task.wait(0.5)
+
+-- ══════════════════════════════
+--  DESPEGUE
+--  1. Esconder todo el texto del frame inmediatamente
+--  2. Sacar el cohete al gui
+--  3. Moverlo al centro X de pantalla (misma Y)
+--  4. Rotar -90 para apuntar arriba
+--  5. Subir hasta salir de pantalla
+-- ══════════════════════════════
+
+-- Esconder todo antes del shrink (texto, barra y estrellas)
+title.Visible = false
+pct.Visible   = false
+barBg.Visible = false
+for _, child in ipairs(frame:GetChildren()) do
+    if child:IsA("Frame") and child ~= barBg and child ~= rocketFrame then
+        child.Visible = false
+    end
+end
+
+frame.ClipsDescendants = false
+
+local camera   = workspace.CurrentCamera
+local screenSz = camera.ViewportSize
+
+local absPos = rocketFrame.AbsolutePosition
+local absSz  = rocketFrame.AbsoluteSize
+
+-- Llevar cohete al gui con su posición absoluta actual
+rocketFrame.Parent      = gui
+rocketFrame.ZIndex      = 10
+rocketFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+rocketFrame.Position    = UDim2.new(
+    (absPos.X + absSz.X * 0.5) / screenSz.X, 0,
+    (absPos.Y + absSz.Y * 0.5) / screenSz.Y, 0
+)
+
+-- Shrink del frame
+TweenService:Create(frame, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+    Size     = UDim2.new(0, 0, 0, 0),
+    Position = UDim2.new(0.5, 0, 0.5, 0),
+}):Play()
+
+fire.Visible = true
+sound:Play()
+
+-- Paso 1: mover al centro X de la pantalla y rotar hacia arriba
+local currentY = rocketFrame.Position.Y.Scale
+TweenService:Create(rocketFrame, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+    Position = UDim2.new(0.5, 0, currentY, 0),
+    Rotation = -90,
+}):Play()
+task.wait(0.4)
+
+-- Paso 2: subir recto hasta salir por arriba
+TweenService:Create(rocketFrame, TweenInfo.new(1.1, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+    Position = UDim2.new(0.5, 0, -0.2, 0)
+}):Play()
+
+task.wait(1.3)
+frame:Destroy()
+rocketFrame:Destroy()
+
+-- ╔════════════════════════════╗
+--        ASTRO HUB MAIN
+-- ╚════════════════════════════╝
+
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local player = game.Players.LocalPlayer
+
+local NEON = Color3.fromRGB(0,200,255)
+
+-- HUB PRINCIPAL
+local main = Instance.new("Frame")
+main.Size = UDim2.new(0,600,0,350)
+main.Position = UDim2.new(0.5,-300,0.5,-175)
+main.BackgroundColor3 = Color3.fromRGB(8,8,18)
+main.BorderSizePixel = 0
+main.Parent = gui
+Instance.new("UICorner", main).CornerRadius = UDim.new(0,10)
+
+-- ⭐ ESTRELLAS
+local stars = {}
+
+for i = 1, 60 do
+    local star = Instance.new("Frame")
+    local size = math.random(1,2)
+
+    star.Size = UDim2.new(0,size,0,size)
+    star.Position = UDim2.new(math.random(),0,math.random(),0)
+    star.BackgroundColor3 = NEON
+    star.BackgroundTransparency = 0.7
+    star.BorderSizePixel = 0
+    star.ZIndex = 0
+    star.Parent = main
+    Instance.new("UICorner", star).CornerRadius = UDim.new(1,0)
+
+    table.insert(stars, star)
+
+    task.spawn(function()
+        while star.Parent do
+            local speed = math.random(6,15)/10
+
+            TweenService:Create(star, TweenInfo.new(speed, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+                BackgroundTransparency = 0.1
+            }):Play()
+
+            task.wait(speed)
+
+            TweenService:Create(star, TweenInfo.new(speed, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+                BackgroundTransparency = 0.85
+            }):Play()
+
+            task.wait(speed)
+        end
+    end)
+end
+
+-- HEADER (para drag)
+local header = Instance.new("Frame")
+header.Size = UDim2.new(1,0,0,35)
+header.BackgroundColor3 = Color3.fromRGB(20,20,30)
+header.Parent = main
+Instance.new("UICorner", header).CornerRadius = UDim.new(0,10)
+
+-- DRAG
+local dragging, dragInput, dragStart, startPos
+
+header.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = main.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+header.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        local delta = input.Position - dragStart
+
+        main.Position = UDim2.new(
+            startPos.X.Scale,
+            startPos.X.Offset + delta.X,
+            startPos.Y.Scale,
+            startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
+-- SIDEBAR
+local sidebar = Instance.new("Frame")
+sidebar.Size = UDim2.new(0,180,1,-35)
+sidebar.Position = UDim2.new(0,0,0,35)
+sidebar.BackgroundColor3 = Color3.fromRGB(15,15,25)
+sidebar.Parent = main
+Instance.new("UICorner", sidebar).CornerRadius = UDim.new(0,10)
+
+-- CONTENT
+local content = Instance.new("Frame")
+content.Size = UDim2.new(1,-190,1,-45)
+content.Position = UDim2.new(0,185,0,40)
+content.BackgroundColor3 = Color3.fromRGB(12,12,20)
+content.Parent = main
+Instance.new("UICorner", content).CornerRadius = UDim.new(0,10)
+
+-- CATEGORY
+local function createCategory(name, y)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1,-20,0,40)
+    btn.Position = UDim2.new(0,10,0,y)
+    btn.Text = name
+    btn.BackgroundColor3 = Color3.fromRGB(20,20,35)
+    btn.TextColor3 = NEON
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 14
+    btn.Parent = sidebar
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0,8)
+end
+
+createCategory("Base", 20)
+createCategory("Stealing", 70)
+createCategory("Player", 120)
+
+-- TOGGLE
+local function createToggle(text, y, callback)
+    local holder = Instance.new("Frame")
+    holder.Size = UDim2.new(1,-20,0,40)
+    holder.Position = UDim2.new(0,10,0,y)
+    holder.BackgroundTransparency = 1
+    holder.Parent = content
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(0.7,0,1,0)
+    label.Text = text
+    label.TextColor3 = NEON
+    label.BackgroundTransparency = 1
+    label.Font = Enum.Font.Gotham
+    label.TextSize = 14
+    label.Parent = holder
+
+    local toggle = Instance.new("TextButton")
+    toggle.Size = UDim2.new(0,40,0,20)
+    toggle.Position = UDim2.new(1,-50,0.5,-10)
+    toggle.BackgroundColor3 = Color3.fromRGB(40,40,60)
+    toggle.Text = ""
+    toggle.Parent = holder
+    Instance.new("UICorner", toggle).CornerRadius = UDim.new(1,0)
+
+    local on = false
+
+    toggle.MouseButton1Click:Connect(function()
+        on = not on
+
+        TweenService:Create(toggle, TweenInfo.new(0.2), {
+            BackgroundColor3 = on and NEON or Color3.fromRGB(40,40,60)
+        }):Play()
+
+        if callback then
+            callback(on)
+        end
+    end)
+end
+
+-- PLAYER SCRIPTS
+local char = player.Character or player.CharacterAdded:Wait()
+
+createToggle("Speed", 10, function(state)
+    char.Humanoid.WalkSpeed = state and 50 or 16
+end)
+
+createToggle("Jump Height", 60, function(state)
+    char.Humanoid.JumpPower = state and 100 or 50
+end)
+
+createToggle("Full Bright", 110, function(state)
+    game.Lighting.Brightness = state and 5 or 2
+end)
+
+-- SETTINGS ICON
+local gear = Instance.new("ImageButton")
+gear.Size = UDim2.new(0,30,0,30)
+gear.Position = UDim2.new(1,-40,0,5)
+gear.BackgroundTransparency = 1
+gear.Image = "rbxassetid://6031280882"
+gear.Parent = main
+
+-- SETTINGS FRAME
+local settingsFrame = Instance.new("Frame")
+settingsFrame.Size = UDim2.new(0,200,0,150)
+settingsFrame.Position = UDim2.new(1,-210,0,40)
+settingsFrame.BackgroundColor3 = Color3.fromRGB(20,20,30)
+settingsFrame.Visible = false
+settingsFrame.Parent = main
+Instance.new("UICorner", settingsFrame).CornerRadius = UDim.new(0,10)
+
+gear.MouseButton1Click:Connect(function()
+    settingsFrame.Visible = not settingsFrame.Visible
+end)
+
+-- CAMBIAR COLOR ESTRELLAS
+local colorBtn = Instance.new("TextButton")
+colorBtn.Size = UDim2.new(1,-20,0,40)
+colorBtn.Position = UDim2.new(0,10,0,10)
+colorBtn.Text = "Blue Stars"
+colorBtn.Parent = settingsFrame
+
+colorBtn.MouseButton1Click:Connect(function()
+    for _, s in ipairs(stars) do
+        s.BackgroundColor3 = NEON
+    end
+end)
+
+-- KEYBIND
+local toggleKey = Enum.KeyCode.RightControl
+
+UserInputService.InputBegan:Connect(function(input, gpe)
+    if not gpe and input.KeyCode == toggleKey then
+        main.Visible = not main.Visible
+    end
+end)
+
+local keyBtn = Instance.new("TextButton")
+keyBtn.Size = UDim2.new(1,-20,0,40)
+keyBtn.Position = UDim2.new(0,10,0,60)
+keyBtn.Text = "Change Keybind"
+keyBtn.Parent = settingsFrame
+
+local waiting = false
+
+keyBtn.MouseButton1Click:Connect(function()
+    keyBtn.Text = "Press key..."
+    waiting = true
+end)
+
+UserInputService.InputBegan:Connect(function(input, gpe)
+    if waiting and not gpe then
+        toggleKey = input.KeyCode
+        keyBtn.Text = "Key: "..input.KeyCode.Name
+        waiting = false
+    end
+end)
