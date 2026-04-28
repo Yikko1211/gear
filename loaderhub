@@ -7,7 +7,7 @@ local Players      = game:GetService("Players")
 
 local player = Players.LocalPlayer
 
-local CYAN  = Color3.fromRGB(0, 200, 255)
+local CYAN  = Color3.fromRGB(10, 30, 60)
 local WHITE = Color3.new(1, 1, 1)
 
 -- GUI
@@ -114,7 +114,7 @@ bar.Parent           = barBg
 Instance.new("UICorner", bar).CornerRadius = UDim.new(1, 0)
 local bg2 = Instance.new("UIGradient")
 bg2.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0,   Color3.fromRGB(0, 100, 220)),
+    ColorSequenceKeypoint.new(0,   Color3.fromRGB(6, 18, 40)),
     ColorSequenceKeypoint.new(0.7, CYAN),
     ColorSequenceKeypoint.new(1,   WHITE),
 })
@@ -333,7 +333,7 @@ local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local player = game.Players.LocalPlayer
 
-local NEON = Color3.fromRGB(0,200,255)
+local NEON = Color3.fromRGB(10,30,60)
 
 -- LOAD MODULE SYSTEM
 local BASE_URL = "https://raw.githubusercontent.com/Yikko1211/gear/main/scripts/"
