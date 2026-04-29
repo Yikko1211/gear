@@ -522,43 +522,27 @@ task.spawn(function()
     end
 end)
 
--- Frosted glass helper: semi-transparent panel with blurred look
-local function applyFrost(panel)
-    panel.BackgroundTransparency = 0.45
-
-    local frost = Instance.new("Frame")
-    frost.Size = UDim2.new(1,0,1,0)
-    frost.BackgroundColor3 = Color3.fromRGB(15,15,25)
-    frost.BackgroundTransparency = 0.55
-    frost.BorderSizePixel = 0
-    frost.ZIndex = panel.ZIndex
-    frost.Parent = panel
-    Instance.new("UICorner", frost).CornerRadius = UDim.new(0,10)
-
-    local frostGrad = Instance.new("UIGradient")
-    frostGrad.Transparency = NumberSequence.new({
-        NumberSequenceKeypoint.new(0, 0.3),
-        NumberSequenceKeypoint.new(0.5, 0.55),
-        NumberSequenceKeypoint.new(1, 0.3),
-    })
-    frostGrad.Parent = frost
-
-    local border = Instance.new("UIStroke")
-    border.Thickness = 1
-    border.Color = Color3.fromRGB(120, 130, 160)
-    border.Transparency = 0.6
-    border.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    border.Parent = panel
-end
-
 -- HEADER
 local header = Instance.new("Frame")
 header.Size = UDim2.new(1,0,0,50)
-header.BackgroundColor3 = Color3.fromRGB(10,10,18)
+header.BackgroundColor3 = Color3.fromRGB(0,0,0)
+header.BackgroundTransparency = 0
 header.Parent = main
 Instance.new("UICorner", header).CornerRadius = UDim.new(0,10)
 header.ZIndex = 3
-applyFrost(header)
+
+local headerGrad = Instance.new("UIGradient")
+headerGrad.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(10,10,10)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(20,20,20)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(10,10,10)),
+})
+headerGrad.Transparency = NumberSequence.new({
+    NumberSequenceKeypoint.new(0, 0.25),
+    NumberSequenceKeypoint.new(0.5, 0.0),
+    NumberSequenceKeypoint.new(1, 0.25),
+})
+headerGrad.Parent = header
 
 local headerTitle = Instance.new("TextLabel")
 headerTitle.Size = UDim2.new(1, -20, 1, 0)
@@ -613,21 +597,29 @@ end)
 local sidebar = Instance.new("Frame")
 sidebar.Size = UDim2.new(0,180,1,-50)
 sidebar.Position = UDim2.new(0,0,0,50)
-sidebar.BackgroundColor3 = Color3.fromRGB(10,10,18)
+sidebar.BackgroundColor3 = Color3.fromRGB(8,8,8)
+sidebar.BackgroundTransparency = 0
 sidebar.Parent = main
 Instance.new("UICorner", sidebar).CornerRadius = UDim.new(0,10)
 sidebar.ZIndex = 3
-applyFrost(sidebar)
+
+local sideGrad = Instance.new("UIGradient")
+sideGrad.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(6,6,6)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(12,12,12)),
+})
+sideGrad.Transparency = NumberSequence.new(0.2)
+sideGrad.Parent = sidebar
 
 -- CONTENT
 local content = Instance.new("Frame")
 content.Size = UDim2.new(1,-190,1,-60)
-content.Position = UDim2.new(0,185,0,55)
-content.BackgroundColor3 = Color3.fromRGB(10,10,18)
+content.Position = UDim2.new(0,185,0,50)
+content.BackgroundColor3 = Color3.fromRGB(12,12,20)
+content.BackgroundTransparency = 1
 content.Parent = main
 Instance.new("UICorner", content).CornerRadius = UDim.new(0,10)
 content.ZIndex = 2
-applyFrost(content)
 
 -- PAGES (tabs)
 local pages = {}
@@ -682,7 +674,7 @@ end
 local basePage = createCategory("Base", 20)
 local stealingPage = createCategory("Stealing", 70)
 local playerPage = createCategory("Player", 120)
-local settingsPage = createCategory("Settings", 260)
+local settingsPage = createCategory("⚙", 260)
 
 -- TOGGLE (gray = off, white = on)
 local GRAY = Color3.fromRGB(80, 80, 80)
