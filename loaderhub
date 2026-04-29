@@ -835,28 +835,84 @@ createToggle(playerPage, "Full Bright", 110, function(state)
 end)
 
 -- SETTINGS (moved into settings page)
-local colorBtn = Instance.new("TextButton")
-colorBtn.Size = UDim2.new(1,-20,0,40)
-colorBtn.Position = UDim2.new(0,10,0,10)
-colorBtn.Text = "Blue Stars"
-colorBtn.TextColor3 = WHITE
-colorBtn.BackgroundColor3 = Color3.fromRGB(0,0,0)
-colorBtn.BackgroundTransparency = 1
-colorBtn.Font = Enum.Font.Gotham
-colorBtn.TextSize = 14
-colorBtn.Parent = settingsPage
 
-colorBtn.MouseButton1Click:Connect(function()
-    for _, s in ipairs(stars) do
-        s.BackgroundColor3 = NEON
-    end
-end)
+-- Star Color label
+local colorLabel = Instance.new("TextLabel")
+colorLabel.Size = UDim2.new(1,-20,0,20)
+colorLabel.Position = UDim2.new(0,10,0,10)
+colorLabel.Text = "Star Color"
+colorLabel.TextColor3 = WHITE
+colorLabel.BackgroundTransparency = 1
+colorLabel.Font = Enum.Font.GothamBold
+colorLabel.TextSize = 14
+colorLabel.TextXAlignment = Enum.TextXAlignment.Left
+colorLabel.Parent = settingsPage
+colorLabel.ZIndex = 3
+
+-- Color picker grid
+local colorGrid = Instance.new("Frame")
+colorGrid.Size = UDim2.new(1,-20,0,120)
+colorGrid.Position = UDim2.new(0,10,0,35)
+colorGrid.BackgroundTransparency = 1
+colorGrid.Parent = settingsPage
+colorGrid.ZIndex = 3
+
+local colorPalette = {
+    Color3.fromRGB(255,255,255),  -- White
+    Color3.fromRGB(255,80,80),    -- Red
+    Color3.fromRGB(255,160,60),   -- Orange
+    Color3.fromRGB(255,255,80),   -- Yellow
+    Color3.fromRGB(80,255,80),    -- Green
+    Color3.fromRGB(80,255,200),   -- Teal
+    Color3.fromRGB(80,200,255),   -- Light Blue
+    Color3.fromRGB(80,120,255),   -- Blue
+    Color3.fromRGB(160,80,255),   -- Purple
+    Color3.fromRGB(255,80,200),   -- Pink
+    Color3.fromRGB(255,180,200),  -- Light Pink
+    Color3.fromRGB(10,30,60),     -- Cyan (NEON)
+    Color3.fromRGB(0,255,255),    -- Aqua
+    Color3.fromRGB(255,100,100),  -- Salmon
+    Color3.fromRGB(200,200,200),  -- Light Gray
+    Color3.fromRGB(120,255,120),  -- Lime
+}
+
+local cols = 4
+local cellSize = 28
+local cellPad = 6
+
+for i, color in ipairs(colorPalette) do
+    local row = math.floor((i - 1) / cols)
+    local col = (i - 1) % cols
+    local swatch = Instance.new("TextButton")
+    swatch.Size = UDim2.new(0, cellSize, 0, cellSize)
+    swatch.Position = UDim2.new(0, col * (cellSize + cellPad), 0, row * (cellSize + cellPad))
+    swatch.BackgroundColor3 = color
+    swatch.Text = ""
+    swatch.BorderSizePixel = 0
+    swatch.Parent = colorGrid
+    swatch.ZIndex = 4
+    Instance.new("UICorner", swatch).CornerRadius = UDim.new(0, 6)
+
+    local swatchBorder = Instance.new("UIStroke")
+    swatchBorder.Thickness = 1
+    swatchBorder.Color = WHITE
+    swatchBorder.Transparency = 0.7
+    swatchBorder.Parent = swatch
+
+    swatch.MouseButton1Click:Connect(function()
+        for _, s in ipairs(stars) do
+            TweenService:Create(s, TweenInfo.new(0.3), {
+                BackgroundColor3 = color
+            }):Play()
+        end
+    end)
+end
 
 local toggleKey = Enum.KeyCode.RightControl
 
 local keyBtn = Instance.new("TextButton")
 keyBtn.Size = UDim2.new(1,-20,0,40)
-keyBtn.Position = UDim2.new(0,10,0,60)
+keyBtn.Position = UDim2.new(0,10,0,170)
 keyBtn.Text = "Change Keybind"
 keyBtn.TextColor3 = WHITE
 keyBtn.BackgroundColor3 = Color3.fromRGB(0,0,0)
