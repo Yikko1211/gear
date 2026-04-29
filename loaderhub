@@ -456,7 +456,7 @@ local function spawnMeteor()
     -- Blink effect: rapidly pulse opacity during flight
     task.spawn(function()
         local elapsed = 0
-        while meteor.Parent and elapsed < speed do
+        while meteor.Parent and elapsed < speed * 0.75 do
             local blinkSpeed = 0.1 + math.random() * 0.15
             TweenService:Create(meteor, TweenInfo.new(blinkSpeed), {
                 BackgroundTransparency = 0.8
