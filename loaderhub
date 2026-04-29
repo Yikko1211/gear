@@ -108,17 +108,10 @@ Instance.new("UICorner", barBg).CornerRadius = UDim.new(1, 0)
 
 local bar = Instance.new("Frame")
 bar.Size             = UDim2.new(0, 0, 1, 0)
-bar.BackgroundColor3 = CYAN
+bar.BackgroundColor3 = WHITE
 bar.BorderSizePixel  = 0
 bar.Parent           = barBg
 Instance.new("UICorner", bar).CornerRadius = UDim.new(1, 0)
-local bg2 = Instance.new("UIGradient")
-bg2.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0,   Color3.fromRGB(6, 18, 40)),
-    ColorSequenceKeypoint.new(0.7, CYAN),
-    ColorSequenceKeypoint.new(1,   WHITE),
-})
-bg2.Parent = bar
 
 local shine = Instance.new("Frame")
 shine.Size                   = UDim2.new(1, 0, 0.45, 0)
@@ -260,7 +253,7 @@ setProgress(100)
 pct.Text = "100%"
 TweenService:Create(bar, TweenInfo.new(0.12), {BackgroundColor3 = WHITE}):Play()
 task.wait(0.18)
-TweenService:Create(bar, TweenInfo.new(0.3), {BackgroundColor3 = CYAN}):Play()
+TweenService:Create(bar, TweenInfo.new(0.3), {BackgroundColor3 = WHITE}):Play()
 task.wait(0.5)
 
 -- ═════════════════════════════=
@@ -408,25 +401,26 @@ meteorContainer.ZIndex = 1
 meteorContainer.Parent = main
 
 local function spawnMeteor()
-    local startX = math.random(50, 95) / 100
-    local startY = math.random(5, 25) / 100
+    local startX = math.random(55, 90) / 100
+    local startY = math.random(10, 30) / 100
 
-    local tailLen = math.random(30, 60)
+    local tailLen = math.random(25, 50)
     local thickness = math.random(1, 2)
     local speed = math.random(10, 18) / 10
 
-    local endX = math.max(0.02, startX - math.random(30, 55) / 100)
-    local endY = math.min(0.95, startY + math.random(25, 50) / 100)
+    local endX = math.max(0.05, startX - math.random(25, 45) / 100)
+    local endY = math.min(0.88, startY + math.random(20, 40) / 100)
 
     local meteor = Instance.new("Frame")
     meteor.Size = UDim2.new(0, tailLen, 0, thickness)
     meteor.Position = UDim2.new(startX, 0, startY, 0)
-    meteor.AnchorPoint = Vector2.new(0, 0.5)
+    meteor.AnchorPoint = Vector2.new(0.5, 0.5)
     meteor.Rotation = 35
     meteor.BackgroundColor3 = WHITE
     meteor.BackgroundTransparency = 0.2
     meteor.BorderSizePixel = 0
     meteor.ZIndex = 1
+    meteor.ClipsDescendants = true
     meteor.Parent = meteorContainer
     Instance.new("UICorner", meteor).CornerRadius = UDim.new(1, 0)
 
@@ -441,7 +435,7 @@ local function spawnMeteor()
     local head = Instance.new("Frame")
     head.Size = UDim2.new(0, 3, 0, 3)
     head.AnchorPoint = Vector2.new(0.5, 0.5)
-    head.Position = UDim2.new(1, 0, 0.5, 0)
+    head.Position = UDim2.new(1, -2, 0.5, 0)
     head.BackgroundColor3 = Color3.fromRGB(200, 220, 255)
     head.BackgroundTransparency = 0
     head.BorderSizePixel = 0
@@ -455,8 +449,8 @@ local function spawnMeteor()
 
     -- Blink effect: rapidly pulse opacity during flight
     task.spawn(function()
-        local elapsed = 0
-        while meteor.Parent and elapsed < speed * 0.75 do
+        local startTime = os.clock()
+        while meteor.Parent and (os.clock() - startTime) < speed * 0.7 do
             local blinkSpeed = 0.1 + math.random() * 0.15
             TweenService:Create(meteor, TweenInfo.new(blinkSpeed), {
                 BackgroundTransparency = 0.8
@@ -473,8 +467,6 @@ local function spawnMeteor()
                 BackgroundTransparency = 0
             }):Play()
             task.wait(blinkSpeed)
-
-            elapsed = elapsed + blinkSpeed * 2
         end
     end)
 
