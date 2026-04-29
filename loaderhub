@@ -401,21 +401,51 @@ meteorContainer.ZIndex = 1
 meteorContainer.Parent = main
 
 local function spawnMeteor()
-    local startX = math.random(55, 90) / 100
-    local startY = math.random(10, 30) / 100
-
     local tailLen = math.random(25, 50)
     local thickness = math.random(1, 2)
     local speed = math.random(10, 18) / 10
 
-    local endX = math.max(0.05, startX - math.random(25, 45) / 100)
-    local endY = math.min(0.88, startY + math.random(20, 40) / 100)
+    local side = math.random(1, 4)
+    local startX, startY, endX, endY, rot
+
+    if side == 1 then
+        -- From top edge, moving downward
+        startX = math.random(15, 85) / 100
+        startY = math.random(5, 15) / 100
+        endX = startX + math.random(-30, 30) / 100
+        endY = math.random(60, 88) / 100
+        rot = math.deg(math.atan2(endY - startY, endX - startX))
+    elseif side == 2 then
+        -- From right edge, moving left
+        startX = math.random(80, 95) / 100
+        startY = math.random(10, 85) / 100
+        endX = math.random(5, 30) / 100
+        endY = startY + math.random(-20, 30) / 100
+        rot = math.deg(math.atan2(endY - startY, endX - startX))
+    elseif side == 3 then
+        -- From bottom edge, moving upward
+        startX = math.random(15, 85) / 100
+        startY = math.random(80, 92) / 100
+        endX = startX + math.random(-30, 30) / 100
+        endY = math.random(10, 35) / 100
+        rot = math.deg(math.atan2(endY - startY, endX - startX))
+    else
+        -- From left edge, moving right
+        startX = math.random(5, 20) / 100
+        startY = math.random(10, 85) / 100
+        endX = math.random(65, 92) / 100
+        endY = startY + math.random(-20, 30) / 100
+        rot = math.deg(math.atan2(endY - startY, endX - startX))
+    end
+
+    endX = math.clamp(endX, 0.05, 0.95)
+    endY = math.clamp(endY, 0.05, 0.95)
 
     local meteor = Instance.new("Frame")
     meteor.Size = UDim2.new(0, tailLen, 0, thickness)
     meteor.Position = UDim2.new(startX, 0, startY, 0)
     meteor.AnchorPoint = Vector2.new(0.5, 0.5)
-    meteor.Rotation = 35
+    meteor.Rotation = rot
     meteor.BackgroundColor3 = WHITE
     meteor.BackgroundTransparency = 0.2
     meteor.BorderSizePixel = 0
