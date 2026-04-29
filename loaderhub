@@ -368,31 +368,14 @@ local stars = {}
 for i = 1, 60 do
     local s = Instance.new("Frame")
     local size = math.random(2,4)
-    local pos = UDim2.new(math.random(),0,math.random(),0)
 
     s.Size = UDim2.new(0,size,0,size)
-    s.Position = pos
-    s.AnchorPoint = Vector2.new(0.5, 0.5)
+    s.Position = UDim2.new(math.random(),0,math.random(),0)
     s.BackgroundColor3 = WHITE
     s.BackgroundTransparency = 0.3
     s.BorderSizePixel = 0
     s.Parent = starBg
     Instance.new("UICorner", s).CornerRadius = UDim.new(1,0)
-
-    -- Star shape overlay (hidden by default)
-    local starIcon = Instance.new("TextLabel")
-    starIcon.Size = UDim2.new(0, 0, 0, 0)
-    starIcon.Position = UDim2.new(0.5, 0, 0.5, 0)
-    starIcon.AnchorPoint = Vector2.new(0.5, 0.5)
-    starIcon.Text = "★"
-    starIcon.TextColor3 = WHITE
-    starIcon.TextScaled = true
-    starIcon.BackgroundTransparency = 1
-    starIcon.TextTransparency = 1
-    starIcon.Font = Enum.Font.GothamBold
-    starIcon.BorderSizePixel = 0
-    starIcon.ZIndex = 2
-    starIcon.Parent = s
 
     table.insert(stars, s)
 
@@ -408,33 +391,28 @@ for i = 1, 60 do
         end
     end)
 
-    -- Random star-shape glow burst
+    -- Random glow burst
     task.spawn(function()
         task.wait(math.random() * 5)
         while s.Parent do
-            task.wait(math.random(3, 10))
+            task.wait(math.random(4, 12))
 
-            local burstSize = size * 6
+            local origSize = s.Size
+            local burstSize = UDim2.new(0, size * 4, 0, size * 4)
 
-            -- Hide dot, show star shape
-            s.BackgroundTransparency = 1
-
-            -- Grow star icon
-            TweenService:Create(starIcon, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-                Size = UDim2.new(0, burstSize, 0, burstSize),
-                TextTransparency = 0
+            -- Grow and glow
+            TweenService:Create(s, TweenInfo.new(0.15, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+                Size = burstSize,
+                BackgroundTransparency = 0
             }):Play()
             task.wait(0.25)
 
-            -- Shrink star icon back
-            TweenService:Create(starIcon, TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-                Size = UDim2.new(0, 0, 0, 0),
-                TextTransparency = 1
+            -- Shrink back
+            TweenService:Create(s, TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+                Size = origSize,
+                BackgroundTransparency = 0.3
             }):Play()
             task.wait(0.15)
-
-            -- Restore dot
-            s.BackgroundTransparency = 0.3
         end
     end)
 end
