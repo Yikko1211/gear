@@ -544,6 +544,16 @@ headerTitle.TextSize = 24
 headerTitle.Parent = header
 headerTitle.ZIndex = 4
 
+-- HORIZONTAL DIVIDER under header
+local headerLine = Instance.new("Frame")
+headerLine.Size = UDim2.new(1, 0, 0, 1)
+headerLine.Position = UDim2.new(0, 0, 0, 50)
+headerLine.BackgroundColor3 = WHITE
+headerLine.BackgroundTransparency = 0.3
+headerLine.BorderSizePixel = 0
+headerLine.ZIndex = 5
+headerLine.Parent = main
+
 -- DRAG
 local dragging, dragInput, dragStart, startPos
 
@@ -580,12 +590,12 @@ UserInputService.InputChanged:Connect(function(input)
     end
 end)
 
--- SIDEBAR
+-- SIDEBAR (transparent so stars and meteors show through)
 local sidebar = Instance.new("Frame")
 sidebar.Size = UDim2.new(0,180,1,-50)
 sidebar.Position = UDim2.new(0,0,0,50)
 sidebar.BackgroundColor3 = Color3.fromRGB(0,0,0)
-sidebar.BackgroundTransparency = 0
+sidebar.BackgroundTransparency = 1
 sidebar.Parent = main
 Instance.new("UICorner", sidebar).CornerRadius = UDim.new(0,10)
 sidebar.ZIndex = 3
