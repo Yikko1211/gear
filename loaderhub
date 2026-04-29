@@ -590,6 +590,16 @@ sidebar.Parent = main
 Instance.new("UICorner", sidebar).CornerRadius = UDim.new(0,10)
 sidebar.ZIndex = 3
 
+-- DIVIDER between sidebar and content
+local divider = Instance.new("Frame")
+divider.Size = UDim2.new(0, 1, 1, -60)
+divider.Position = UDim2.new(0, 180, 0, 55)
+divider.BackgroundColor3 = WHITE
+divider.BackgroundTransparency = 0.3
+divider.BorderSizePixel = 0
+divider.ZIndex = 5
+divider.Parent = main
+
 -- CONTENT
 local content = Instance.new("Frame")
 content.Size = UDim2.new(1,-190,1,-60)
