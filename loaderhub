@@ -398,6 +398,82 @@ for i = 1, 60 do
     end)
 end
 
+-- METEORS — diagonal streaks across the background
+local meteorContainer = Instance.new("Frame")
+meteorContainer.Size = UDim2.new(1,0,1,0)
+meteorContainer.Position = UDim2.new(0,0,0,0)
+meteorContainer.BackgroundTransparency = 1
+meteorContainer.ClipsDescendants = true
+meteorContainer.ZIndex = 1
+meteorContainer.Parent = main
+
+local function spawnMeteor()
+    local startX = math.random(30,110) / 100
+    local startY = math.random(-10,30) / 100
+
+    local tailLen = math.random(40,80)
+    local thickness = math.random(1,2)
+    local speed = math.random(8,14) / 10
+
+    local meteor = Instance.new("Frame")
+    meteor.Size = UDim2.new(0, tailLen, 0, thickness)
+    meteor.Position = UDim2.new(startX, 0, startY, 0)
+    meteor.AnchorPoint = Vector2.new(0, 0.5)
+    meteor.Rotation = 35
+    meteor.BackgroundColor3 = WHITE
+    meteor.BackgroundTransparency = 0.2
+    meteor.BorderSizePixel = 0
+    meteor.ZIndex = 1
+    meteor.Parent = meteorContainer
+    Instance.new("UICorner", meteor).CornerRadius = UDim.new(1, 0)
+
+    local grad = Instance.new("UIGradient")
+    grad.Transparency = NumberSequence.new({
+        NumberSequenceKeypoint.new(0, 1),
+        NumberSequenceKeypoint.new(0.7, 0.4),
+        NumberSequenceKeypoint.new(1, 0),
+    })
+    grad.Parent = meteor
+
+    local head = Instance.new("Frame")
+    head.Size = UDim2.new(0, 3, 0, 3)
+    head.AnchorPoint = Vector2.new(0.5, 0.5)
+    head.Position = UDim2.new(1, 0, 0.5, 0)
+    head.BackgroundColor3 = Color3.fromRGB(200, 220, 255)
+    head.BackgroundTransparency = 0
+    head.BorderSizePixel = 0
+    head.ZIndex = 1
+    head.Parent = meteor
+    Instance.new("UICorner", head).CornerRadius = UDim.new(1, 0)
+
+    local endX = startX - 1.2
+    local endY = startY + 0.85
+
+    TweenService:Create(meteor, TweenInfo.new(speed, Enum.EasingStyle.Linear), {
+        Position = UDim2.new(endX, 0, endY, 0)
+    }):Play()
+
+    task.delay(speed * 0.7, function()
+        TweenService:Create(meteor, TweenInfo.new(speed * 0.3), {
+            BackgroundTransparency = 1
+        }):Play()
+        TweenService:Create(head, TweenInfo.new(speed * 0.3), {
+            BackgroundTransparency = 1
+        }):Play()
+    end)
+
+    task.delay(speed + 0.1, function()
+        meteor:Destroy()
+    end)
+end
+
+task.spawn(function()
+    while meteorContainer.Parent do
+        spawnMeteor()
+        task.wait(math.random(8,20) / 10)
+    end
+end)
+
 -- HEADER
 local header = Instance.new("Frame")
 header.Size = UDim2.new(1,0,0,50)
