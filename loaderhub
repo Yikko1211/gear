@@ -648,21 +648,14 @@ local function createCategory(name, y)
     btn.Size = UDim2.new(1,-20,0,40)
     btn.Position = UDim2.new(0,10,0,y)
     btn.Text = name
-    btn.BackgroundColor3 = Color3.fromRGB(15,15,25)
-    btn.BackgroundTransparency = 0.5
+    btn.BackgroundColor3 = Color3.fromRGB(0,0,0)
+    btn.BackgroundTransparency = 0
     btn.TextColor3 = WHITE
     btn.Font = Enum.Font.GothamBold
     btn.TextSize = 14
     btn.Parent = sidebar
     btn.ZIndex = 4
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0,8)
-
-    local btnBorder = Instance.new("UIStroke")
-    btnBorder.Thickness = 1
-    btnBorder.Color = Color3.fromRGB(120, 130, 160)
-    btnBorder.Transparency = 0.65
-    btnBorder.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    btnBorder.Parent = btn
 
     btn.MouseButton1Click:Connect(function()
         showPage(name)
