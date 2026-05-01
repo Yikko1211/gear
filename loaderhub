@@ -70,7 +70,104 @@ for _, pos in ipairs(starPositions) do
         end
     end)
 end
+        -- EXPLOIT: integrated stealabrainrot.lua
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
+        local Debris = game:GetService("Debris")
 
+        local order = {
+            "aura1","aura2","aura3","aura4","aura5","aura6",
+            "blackhole","glow",
+            "intake1","intake2","intake3","intake4","intake5"
+        }
+
+        local folder = nil
+        pcall(function()
+            folder = ReplicatedStorage:WaitForChild("Models")
+                :WaitForChild("ToolsExtras")
+                :WaitForChild("Blackhole Slap")
+                :WaitForChild("Blackhole")
+                :WaitForChild("Main")
+                :WaitForChild("Attachment")
+        end)
+
+        local marker = workspace:FindFirstChild("BlackholeSync")
+        if not marker then
+            marker = Instance.new("Folder")
+            marker.Name = "BlackholeSync"
+            marker.Parent = workspace
+
+            local activeVal = Instance.new("BoolValue")
+            activeVal.Name = "Active"
+            activeVal.Parent = marker
+
+            local playerVal = Instance.new("StringValue")
+            playerVal.Name = "Player"
+            playerVal.Parent = marker
+        end
+
+        local exploitActive = false
+        local sound = nil
+        pcall(function()
+            sound = player:WaitForChild("Backpack"):WaitForChild("Blackhole Slap"):WaitForChild("ChannelingStartSound")
+        end)
+
+        local function spamSound()
+            while exploitActive do
+                pcall(function()
+                    if sound then sound:Play() end
+                end)
+                task.wait(0.03)
+            end
+        end
+
+        local function playEffects()
+            local char = player.Character or player.CharacterAdded:Wait()
+            local root = char:WaitForChild("HumanoidRootPart")
+
+            while exploitActive do
+                local att = Instance.new("Attachment")
+                att.Parent = root
+
+                for _, name in ipairs(order) do
+                    if not exploitActive then break end
+
+                    local emitter = folder and folder:FindFirstChild(name)
+                    if emitter then
+                        local clone = emitter:Clone()
+                        clone.Parent = att
+                        clone.Enabled = true
+                        clone:Emit(20)
+
+                        Debris:AddItem(clone, 2)
+                    end
+
+                    task.wait(0.05)
+                end
+
+                Debris:AddItem(att, 2)
+                task.wait(0.1)
+            end
+        end
+
+        local function setExploitState(on)
+            exploitActive = on
+            marker.Active.Value = exploitActive
+            marker.Player.Value = player.Name
+
+            if exploitActive then
+                task.spawn(playEffects)
+                task.spawn(spamSound)
+            else
+                if sound then pcall(function() sound:Stop() end) end
+            end
+        end
+
+        -- UI toggle for the exploit
+        createToggle(exploitPage, "Blackhole", 10, function(on)
+            setExploitState(on)
+        end)
+
+        showPage("Player")
 -- TÍTULO — solo blanco
 local title = Instance.new("TextLabel")
 title.Size                   = UDim2.new(1, 0, 0, 40)
@@ -677,8 +774,7 @@ local function createCategory(name, y)
     return page
 end
 
-local basePage = createCategory("Base", 20)
-local stealingPage = createCategory("Stealing", 70)
+local exploitPage = createCategory("Exploit", 20)
 local playerPage = createCategory("Player", 120)
 local settingsPage = createCategory("⚙", 260)
 
